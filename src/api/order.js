@@ -20,3 +20,15 @@ export function addOrder(body) {
 export function getOrderCompute() {
     return axios.get('order/compute')
 }
+
+export  function  exportOrderByDay(day){
+    return axios.get('api/order/export/order'+day)
+}
+
+export  function editOrderDay(day){
+    return axios.put('admin/update/'+day)
+}
+
+export  function getOrderDay(){
+    return axios.get('admin/day')
+}

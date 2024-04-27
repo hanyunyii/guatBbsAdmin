@@ -1,8 +1,40 @@
 <template>
   <div class="order_list">
-    <div class="action">
+    <div class="left">
+      <div style="min-width: 222px">
+        <el-input placeholder="请输入预定时间(天)" style="width: 77px" v-model.number="day"></el-input>
+        <el-button type="primary" @click="updateDay">/天 修改预定时间</el-button>
+      </div>
 
 
+      <div class="search">
+
+        <el-select style="width: 121px" v-model="search" placeholder="搜索方式" @change="changeSearchType">
+          <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          >
+          </el-option>
+        </el-select>
+
+        <el-input v-model="searchInput" style="width: 222px"></el-input>
+        <el-button type="primary" @click="searchFn">搜索</el-button>
+      </div>
+      <div class="action">
+        <el-date-picker
+            v-model="exportDay"
+            placeholder="选择游玩日期以导出"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        >
+        </el-date-picker>
+        <el-button type="primary"  @click="exportDayFn">导出</el-button>
+      </div>
     </div>
 
     <el-table
@@ -12,12 +44,22 @@
       <el-table-column
           prop="reserveTime"
           label="预约时间"
-         >
+      >
       </el-table-column>
       <el-table-column
           prop="reserveName"
           label="预约者"
-         >
+      >
+      </el-table-column>
+      <el-table-column
+          prop="tel"
+          label="手机号"
+      >
+      </el-table-column>
+      <el-table-column
+          prop="id"
+          label="卡号"
+      >
       </el-table-column>
       <el-table-column
           prop="idNum"
@@ -27,12 +69,12 @@
       <el-table-column
           prop="startTime"
           label="游玩时间"
-          >
+      >
       </el-table-column>
       <el-table-column
           prop="ssName"
           label="景区名"
-          >
+      >
       </el-table-column>
 
       <el-table-column
@@ -54,7 +96,7 @@
         :total="params.total"
         :page-size.sync="params.rows"
         :current-page.sync="params.page"
-       >
+    >
     </el-pagination>
     <el-dialog
         :title="edit?'修改订单':'添加订单'"
@@ -102,12 +144,13 @@
 </template>
 
 <script>
-import {addOrder, deleteOrder, editOrder, getOrderList} from "@/api/order";
+import {addOrder, deleteOrder, editOrder, editOrderDay, exportOrderByDay, getOrderDay, getOrderList} from "@/api/order";
 
 export default {
   name: "orderList",
   data() {
     return {
+      exportDay: '',
       edit: false,
       showOrder: false,
       orderList: [''],
@@ -115,14 +158,76 @@ export default {
         page: 1,
         rows: 10,
         keyword: '',
-        total: ''
+        total: '',
+        searchType:'',
+        searchKey:''
 
       },
-      orderInfo: {}
+      options: [
+        {label: '姓名', value: 'name'}, {label: '手机号', value: 'tel'}
+      ],
+      day: '',
+      orderInfo: {},
+      search: '',
+      searchInput: ''
     }
   },
   methods: {
+    searchFn(){
+       this.params.searchType=this.search
+       this.params.searchKey=this.searchInput
+      this.getOrderList()
+    },
+    changeSearchType(res) {
+      console.log(this.search)
+    },
+    getOrderDay() {
+      getOrderDay().then(res => {
+        this.day = res.data.res
+      })
+    },
+    updateDay() {
+      if (!this.day) return this.$message.error('请输入天数')
+      this.$confirm('此操作将修改预定时间, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        editOrderDay(this.day).then(res => {
+          this.$message({
+            type: 'success',
+            message: '修改成功!'
+          });
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消修改'
+        });
+      });
+    },
+    exportDayFn() {
 
+      if (!this.exportDay) return this.$message.error('请选择日期')
+      this.$confirm('此操作将导出该日期的订单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.open('https://lxhz123.com:10000/api/order/export/order?day='+this.exportDay[0]+'&endDay='+this.exportDay[1])
+        // window.open('https://127.0.0.1:9997/api/order/export/order?day=' + this.exportDay[0] + '&endDay=' + this.exportDay[1])
+1
+        // this.$message({
+        //   type: 'success',
+        //   message: '导出成功!'
+        // });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消导出'
+        });
+      });
+    },
     handleSizeChange(val) {
       this.params.pageSize = val
       this.getOrderList();
@@ -182,10 +287,26 @@ export default {
   },
   created() {
     this.getOrderList()
+    this.getOrderDay()
   }
 }
 </script>
 
 <style scoped>
+.action {
+  float: right;
+}
 
+.left {
+  max-height: 150px;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+.search {
+  display: flex;
+  min-width: 333px;
+}
 </style>

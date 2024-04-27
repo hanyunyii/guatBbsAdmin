@@ -13,6 +13,11 @@ export function getLocalList(params) {
     return axios.get('api/member/local', {params: {...params}})
 }
 
+
+export function batchDeleteLocalMember(body){
+    return axios.delete('api/member/batch/delete',{data:{... body}})
+}
+
 export function deleteLocal(ids) {
     return axios.delete(`api/member/local/${ids}`,)
 }

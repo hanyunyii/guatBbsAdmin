@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export function  addBanner(url){
-    return axios.post('/banner',{url})
+export function  addBanner(url,type){
+    return axios.post('/banner',{url:url,type:type})
 }
 
 export function  getBannerList(){
@@ -11,3 +11,4 @@ export function  getBannerList(){
 export function  deleteBanner(id){
     return axios.delete(`/banner/${id}`)
 }
+

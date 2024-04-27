@@ -10,6 +10,7 @@ import localList from "@/views/local/localList";
 import Banner from "@/views/small/Banner";
 import Hotel from "@/views/small/Hotel";
 import MakeHotel from "@/views/make/MakeHotel";
+import Push from "@/views/push/Push.vue";
 
 Vue.use(VueRouter)
 
@@ -53,6 +54,11 @@ const routes = [
                 path:'/makeHotel',
                 name:'makeHotel',
                 component: MakeHotel
+            },
+            {
+                path:'/push',
+                name:'push',
+                component: Push
             }
         ]
     },

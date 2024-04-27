@@ -63,8 +63,8 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-items: center;
-  min-height: 1440px;
-  height: 100%;
+  height: 100vh;
+
   background: url("../../imges/bargound.jpg");
 
   background-position: center center;

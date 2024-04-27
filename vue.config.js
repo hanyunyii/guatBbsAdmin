@@ -4,7 +4,7 @@ module.exports = defineConfig({
   lintOnSave:false,
   devServer: {
     port: 8888,
-    proxy: "https://182.92.190.125:9997/"
+    proxy: "https://lxhz123:9997/"
 
   }
 })

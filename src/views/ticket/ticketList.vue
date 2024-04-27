@@ -3,9 +3,20 @@
 
 
 
-    <el-input v-model="params.key" placeholder="请输入景区名" style="width: 300px;margin:  0 auto"> </el-input>      <el-button type="primary"  @click="getTicketList">搜索</el-button>
-
+    <el-input v-model="params.key" placeholder="请输入景区名" style="width: 300px;margin:  0 auto"> </el-input>
+    <el-button type="primary"  @click="getTicketList">搜索</el-button>
+    <el-input v-model="beforeDay" style="width: 60px;margin:  0 auto"> </el-input>
+    <el-button type="primary"  @click="batchDay">修改提前预约天数</el-button>
+    <el-button type="primary" style="float: right" @click="exportModel">导出模板</el-button>
     <el-button type="primary" style="float: right" @click="showTicket=true,edit=false">添加</el-button>
+    <el-upload
+        style="float: right"
+        class="upload-demo"
+        :on-success="handleBatchSaveSuccess"
+        :on-error="handleBatchSaveError"
+        action="https://lxhz123.com:10000/api/ticket/upload">
+      <el-button  type="primary" style="float: right">批量添加</el-button>
+    </el-upload>
     <div class="action">
 
 
@@ -25,7 +36,7 @@
           label="类型"
       >
         <template slot-scope="scope">
-          <span>{{scope.row.tlevel===1?'二十景区':scope.row.tlevel===2?'四十景区':'六十景区'}}</span>
+          <span>{{scope.row.tlevel}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -41,7 +52,16 @@
           label="景区名"
       >
       </el-table-column>
-
+      <el-table-column
+          prop="needBefore"
+          label="提前预约/天"
+      >
+      </el-table-column>
+      <el-table-column
+          prop="tlevel"
+          label="版本"
+      >
+      </el-table-column>
       <el-table-column
           label="照片"
           width="300"
@@ -57,6 +77,23 @@
       >
 
       </el-table-column>
+      <el-table-column
+          label="是否热门景区"
+
+      > <template slot-scope="scope">
+        <el-switch
+            v-model="scope.row.hot"
+            active-color="#13ce66"
+            :active-value="1"
+            :inactive-value="0"
+            inactive-color="#ff4949"
+            @change="changeHot(scope.row)">
+        </el-switch>
+      </template>
+
+
+      </el-table-column>
+
       <el-table-column
           prop="ssAddress"
           label="描述"
@@ -110,6 +147,9 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="需要提前预约天数">
+          <el-input v-model="ticketInfo.needBefore"></el-input>
+        </el-form-item>
         <el-form-item label="景区名">
           <el-input v-model="ticketInfo.ssName"></el-input>
         </el-form-item>
@@ -119,25 +159,15 @@
         <el-form-item label="价格">
           <el-input v-model="ticketInfo.price"></el-input>
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item label="地址">
           <el-input v-model="ticketInfo.ssAddress"></el-input>
         </el-form-item>
-        <el-form-item label="类型" >
-          <el-select v-model="ticketInfo.tlevel" placeholder="请选择" style="width: 100%">
-            <el-option
-                label="二十景区"
-                :value="1">
-            </el-option>
-            <el-option
-                label="四十景区"
-                :value="2">
-            </el-option>
-            <el-option
-                label="六十景区"
-                :value="3">
-            </el-option>
+        <el-form-item label="景区介绍">
 
-          </el-select>
+          <el-input type="textarea" v-model="ticketInfo.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="套卡所属等级">
+          <el-input v-model="ticketInfo.tlevel"></el-input>
         </el-form-item>
 
       </el-form>
@@ -152,7 +182,7 @@
 </template>
 
 <script>
-import {addTicket, deleteTicket, editTicket, getTicketList, updateOrSave} from "@/api/ticket";
+import {addTicket, batchEditBeforeDay, deleteTicket, editTicket, getTicketList, updateOrSave} from "@/api/ticket";
 
 export default {
   name: "ticketList",
@@ -169,11 +199,37 @@ export default {
         level: 3
 
       },
-      ticketInfo: {}
+      ticketInfo: {},
+      beforeDay:2
     }
   },
   methods: {
+    batchDay(){
+      batchEditBeforeDay(this.beforeDay).then(res=>{
+        this.$message.success('修改成功')
+      })
+    },
+    changeHot(row){
+      this.ticketInfo=row
+      this.submitTicket()
+    },
+    handleBatchSaveSuccess(){
+      this.$message({
+        type: 'success',
+        message: '上传成功!'
+      });
+      this.getTicketList()
+    },
+    handleBatchSaveError(){
+      this.$message({
+        type: 'error',
+        message: '上传失败!'
+      });
+    },
 
+    exportModel(){
+      window.open('https://lxhz123.com:10000/api/ticket/export')
+    },
     handleSizeChange(val) {
       this.params.pageSize = val
       this.getTicketList();
@@ -209,18 +265,18 @@ export default {
       console.log(this.ticketInfo)
       updateOrSave(this.ticketInfo)
       this.showTicket = false
-      this.getTicketList()
+      // this.getTicketList()
       this.ticketInfo = {}
-      this.getTicketList()
+      // this.getTicketList()
       this.$message.success('操作成功')
     },
     getTicketList() {
       getTicketList(this.params, this.params.level).then(res => {
-        console.log(res)
         this.ticketList = res.data.rows
         this.params.page = res.data.page
         this.params.rows = res.data.size
         this.params.total = res.data.total
+        this.beforeDay=res.data.rows[0].needBefore
       })
     }
   },

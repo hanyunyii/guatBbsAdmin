@@ -1,6 +1,7 @@
 <template>
 <div class="banner">
-  <el-button  style="float: right" type="primary" @click="uploadFile=true">添加</el-button>
+  <el-button  style="float: right;" type="primary"  @click="uploadFile=true,imageType=0">添加Banner图</el-button>
+  <el-button  style="float: right;margin-right: 6px" type="primary" @click="uploadFile=true,imageType=1">添加滚动图</el-button>
   <el-table
       :data="tableData"
       border
@@ -8,9 +9,20 @@
     <el-table-column
         label="图片"
       >
-      <template slot-scope="scope">
+      <template slot-scope="scope" v-if="scope.row.type!==3">
+
        <el-image fit="cover"  :src="scope.row.url" v-if="scope.row.url"></el-image>
 
+      </template>
+
+
+    </el-table-column>
+    <el-table-column
+        label="类型"
+        width="100"
+    >
+      <template slot-scope="scope" v-if="scope.row.type!==3">
+           <span>{{scope.row.type===0?'banner':'滚动图'}}</span>
       </template>
 
 
@@ -19,7 +31,7 @@
         label="操作"
         width="100"
     >
-      <template slot-scope="scope">
+      <template slot-scope="scope" v-if="scope.row.type!==3">
         <el-button type="danger" icon="el-icon-delete"  @click="removeBanner(scope.row.id)" circle></el-button>
       </template>
 
@@ -40,7 +52,7 @@
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
        >
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
+      <el-image  v-if="imageUrl!==''" :src="imageUrl" class="avatar"></el-image>
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
     <span slot="footer" class="dialog-footer">
@@ -61,6 +73,7 @@ export default {
   data(){
     return{
       imageUrl:'',
+      imageType:'',
       uploadFile:false,
       tableData: [{
 
@@ -77,14 +90,20 @@ export default {
     },
     handleAvatarSuccess(res){
       console.log('上传成功',res)
-      this.imageUrl=res.url
 
+
+      this.imageUrl=res.msg
+if (this.imageUrl!==''){
+  this.$message.success('上传成功')
+
+}
     },
     addBanner(){
-      addBanner(this.imageUrl).then(res=>{
+      addBanner(this.imageUrl,this.imageType).then(res=>{
         this.$message.success('添加成功')
         this.uploadFile=false
         this.getBannerList()
+        this.imageUrl=''
       })
 
     },

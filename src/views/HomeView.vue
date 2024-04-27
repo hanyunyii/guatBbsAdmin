@@ -52,27 +52,40 @@
 
 
             </el-submenu>
-
             <el-submenu index="7">
               <template slot="title">
-                <i class="el-icon-set-up"></i>
-                <span>小程序管理</span>
+                <i class="el-icon-s-tools"></i>
+                <span>前台管理</span>
               </template>
-              <el-menu-item index="banner">首页轮播图</el-menu-item>
-              <el-menu-item index="hotel">酒店管理</el-menu-item>
+              <el-menu-item index="push">公告/须知</el-menu-item>
+              <el-menu-item index="banner">banner/滚动图</el-menu-item>
+<!--              <el-menu-item index="banner2">前端滚动图</el-menu-item>-->
+
 
 
             </el-submenu>
 
-            <el-submenu index="8">
-              <template slot="title">
-                <i class="el-icon-house"></i>
-                <span>酒店预约管理</span>
-              </template>
-              <el-menu-item index="makeHotel">预约列表</el-menu-item>
+<!--小程序专属-->
+<!--            <el-submenu index="7">-->
+<!--              <template slot="title">-->
+<!--                <i class="el-icon-set-up"></i>-->
+<!--                <span>小程序管理</span>-->
+<!--              </template>-->
+<!--              <el-menu-item index="banner">首页轮播图</el-menu-item>-->
+<!--              <el-menu-item index="hotel">酒店管理</el-menu-item>-->
 
 
-            </el-submenu>
+<!--            </el-submenu>-->
+
+<!--            <el-submenu index="8">-->
+<!--              <template slot="title">-->
+<!--                <i class="el-icon-house"></i>-->
+<!--                <span>酒店预约管理</span>-->
+<!--              </template>-->
+<!--              <el-menu-item index="makeHotel">预约列表</el-menu-item>-->
+
+
+<!--            </el-submenu>-->
 
 
           </el-menu>

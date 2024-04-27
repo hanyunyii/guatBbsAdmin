@@ -9,8 +9,8 @@ export function  addHotel(hotel){
     return axios.post('/hotel',{... hotel})
 }
 
-export  function  getHotelList(){
-    return axios.get('/hotel/list')
+export  function  getHotelList(params){
+    return axios.get('/hotel/list',{params:{ ... params}})
 }
 
 export function  deleteHotel(id){
@@ -39,4 +39,8 @@ export function getMakeHotelPage(params){
 
 export function editHotel(hotel){
     return axios.put('/hotel',{... hotel})
+}
+
+export function  batchSaveHotel(hotel){
+    return axios.post('/hotel/batch',{... hotel})
 }

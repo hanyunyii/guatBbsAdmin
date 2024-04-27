@@ -1,11 +1,29 @@
 <template>
   <div class="hotel">
-    <el-button style="float: right" type="primary" @click="addHotel=true">添加</el-button>
+    <el-input placeholder="请输入内容" v-model="params.name" class="input-with-select" style="width: 20%;min-width: 160px;float: right" >
+
+      <el-button slot="append" icon="el-icon-search" @click="getHotelList"></el-button>
+    </el-input>
+    <el-button style="float: right;margin-right: 5px" type="primary" @click="addHotel=true">添加</el-button>
+    <el-button style="float: right;margin-right: 5px" type="primary" @click="excelTemplate">导出模板</el-button>
+
+    <el-upload
+        :on-success="batchUploadHotelSuccess"
+        class="upload-demo"
+        action="https://lxhz123.com:9919/hotel/upload"
+        >
+      <el-button size="small" type="primary">批量上传</el-button>
+    </el-upload>
     <el-table
         :data="tableData"
         border
 
         style="width: 100%">
+      <el-table-column
+          label="酒店ID"
+          prop="id"
+      >
+      </el-table-column>
       <el-table-column
           label="酒店名称"
           prop="name"
@@ -27,13 +45,13 @@
           prop="score"
       >
       </el-table-column>
-      <el-table-column
-          label="设施"
-          >
-        <template slot-scope="scope">
-          <span style="color: blue" @click="showHotelFacilities=true" >查看设施详情</span>
-        </template>
-      </el-table-column>
+<!--      <el-table-column-->
+<!--          label="设施"-->
+<!--          >-->
+<!--        <template slot-scope="scope">-->
+<!--          <span style="color: blue" @click="showHotelFacilities=true" >查看设施详情</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column
           label="轮播图"
 
@@ -76,7 +94,16 @@
       </el-table-column>
     </el-table>
 
-
+    <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        layout="prev, pager, next"
+        :total="params.total"
+        :page-size="params.rows"
+        :current-page.sync="params.page"
+    >
+    </el-pagination>
     <!--    添加酒店-->
     <el-dialog
         title="添加酒店"
@@ -86,6 +113,9 @@
     >
 
       <el-form label-width="80px" :model="hotel" :rules="hotelRules" ref="ruleForm">
+        <el-form-item label="城市排序(数字越大越前" prop="name">
+          <el-input v-model="hotel.cityOrder"></el-input>
+        </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="hotel.name"></el-input>
         </el-form-item>
@@ -142,6 +172,9 @@
     >
 
       <el-form label-width="80px" :model="hotel" :rules="hotelRules" ref="ruleForm">
+        <el-form-item label="城市排序(数字越大越前" prop="name">
+          <el-input v-model="hotel.cityOrder"></el-input>
+        </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="hotel.name"></el-input>
         </el-form-item>
@@ -180,12 +213,20 @@
     </el-dialog>
     <!--    酒店房间列表-->
     <el-dialog
-        title="房间列表"
+        :title="'房间列表 酒店Id:'+hotelDetails.hotelId"
         :visible="showHotelDetails"
         width="90%"
     >
+      <el-upload
+          :on-success="batchUploadHotelDetailsSuccess"
+          class="upload-demo"
+          action="https://lxhz123.com:9919/hotel/upload/details"
+      >
+        <el-button size="small" type="primary">批量上传</el-button>
+      </el-upload>
+      <el-button style="float: right;margin-right: 5px" type="primary" @click="excelDetailsTemplate">导出模板</el-button>
 
-      <el-button style="float: right" type="primary" @click="addHotelDetails=true">添加</el-button>
+      <el-button style="float: right;margin-right: 5px" type="primary" @click="addHotelDetails=true">添加</el-button>
       <el-table
           :data="hotelDetailsList"
           border
@@ -374,6 +415,13 @@ export default {
   name: "Hotel",
   data() {
     return {
+      params: {
+        page: 1,
+        rows: 10,
+        keyword: '',
+        total: '',
+        name:''
+      },
       newFacilitiesName:'',
       facilities:[{name:'设施',value:'描述'}],
       showHotelFacilities:false,
@@ -444,6 +492,29 @@ export default {
     }
   },
   methods: {
+    handleSizeChange(val) {
+      this.params.pageSize = val
+      this.getHotelList();
+    },
+    handleCurrentChange(val) {
+      this.params.current = val
+      this.getHotelList();
+    },
+    batchUploadHotelSuccess(){
+      this.$message.success('批量导入成功')
+      this.getHotelList();
+    },
+    batchUploadHotelDetailsSuccess(){
+      this.$message.success('批量导入成功')
+      this.getHotelDetailsList(this.hotelDetails.hotelId);
+    },
+    excelDetailsTemplate(){
+      window.open('https://lxhz123.com:9919/hotel/export/details')
+
+    },
+    excelTemplate(){
+      window.open('https://lxhz123.com:9919/hotel/export')
+    },
     editHotelDetailsFn(){
       this.hotelDetails.img = this.images
 
@@ -664,9 +735,13 @@ export default {
       })
     },
     getHotelList() {
-      getHotelList().then(res => {
+      getHotelList(this.params).then(res => {
         console.log(res)
-        this.tableData = res.data.hotels
+        this.tableData = res.data.hotels.records
+
+        this.params.page = res.data.hotels.current
+        this.params.rows = res.data.hotels.size
+        this.params.total = res.data.hotels.total
       })
     },
   },

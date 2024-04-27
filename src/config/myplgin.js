@@ -23,18 +23,22 @@ var myplgin = {
         })
 
         //处理好的axios设置到vue原型对象中
-        // axios.defaults.baseURL="http://182.92.190.125:9918/"
+        // axios.defaults.baseURL="https://lxhz123:9918/"
         // axios.defaults.baseURL="https://lxhz123.com:9919"
 
-        // axios.defaults.baseURL = 'http://1.117.105.116:9997'
-        // axios.defaults.baseURL = 'http://182.92.190.125:8081'
-        // axios.defaults.baseURL = 'http://127.0.0.1:9918'
-        axios.defaults.baseURL = 'https://lxhz123.com:9919'
+        // axios.defaults.baseURL = 'https://1.117.105.116:9997'
+        // axios.defaults.baseURL = 'https://lxhz123:8081'
+        // axios.defaults.baseURL = 'https://lxhz123.com:9919'
+        // axios.defaults.baseURL = 'https://lxhz123.com:10000'
+        // axios.defaults.baseURL = 'http://127.0.0.1:7771'
+        axios.defaults.baseURL = 'https://lxhz123.com:10000'
+
+        // axios.defaults.baseURL = 'https://127.0.0.1:9997'
         //将token塞进请求头中，后端会根据token判断是否登录
 
 
         axios.defaults.headers.satoken=localStorage.getItem('token')
-        Vue.prototype.$http = my_axios
+        Vue.prototype.$https = my_axios
     }
 }
 
